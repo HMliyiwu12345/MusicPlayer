@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MusicPlayer</string>
+    <string name="local_res">本地资源</string>
+    <string name="network_res">网络资源</string>
+</resources>
