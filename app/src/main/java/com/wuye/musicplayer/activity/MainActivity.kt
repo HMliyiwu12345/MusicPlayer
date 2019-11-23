@@ -6,26 +6,23 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import com.wuye.musicplayer.R
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : Activity(), View.OnClickListener {
-
+class MainActivity : Activity() ,View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        var local: Button = findViewById(R.id.local)
+        var local: Button = findViewById(R.id.local) as Button
         local.setOnClickListener(this)
-        var network: Button = findViewById(R.id.network)
+        var network: Button  = findViewById(R.id.network) as Button
         network.setOnClickListener(this)
     }
 
 
     override fun onClick(p0: View?) {
 //        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-
         when (p0?.id) {
             R.id.local -> local()
             R.id.network -> network()
@@ -35,13 +32,13 @@ class MainActivity : Activity(), View.OnClickListener {
 
     fun local() {
         var intent = Intent()
-        intent.setClass(this, LocalActivity::class.java)
+        intent.setClass(MainActivty.this, LocalActivity::class.java)
         startActivity(intent)
     }
 
     fun network() {
-        var intent = Intent()
-        intent.setClass(this, NetworkActivity::class.java)
+        var intent= Intent()
+        intent.setClass(MainActivty.this, NetworkActivity::class.java)
         startActivity(intent)
     }
 }
