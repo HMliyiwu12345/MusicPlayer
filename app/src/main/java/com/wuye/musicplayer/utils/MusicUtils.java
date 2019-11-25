@@ -1,16 +1,10 @@
 package com.wuye.musicplayer.utils;
 
-import android.Manifest;
+
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.MediaStore;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import com.wuye.musicplayer.bean.Music;
-
 import java.util.ArrayList;
 import java.util.List;
 

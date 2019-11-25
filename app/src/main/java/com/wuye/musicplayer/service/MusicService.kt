@@ -75,16 +75,14 @@ class MusicService : Service() {
         /**
          * 开始播放
          */
-        fun onStartPlay(vararg params: Any) {
+        fun onStartPlay(path: String, ivPlayer: ImageView) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                if (isPrepare()) {
-                    onPlay(params[0] as ImageView)
-                } else if(!TextUtils.isEmpty(params[1] as String)){
-                    setDataSource(params[1] as String)
-                    onStartPlay(params[1], params[0])
+                setDataSource(path)
+                if(isPrepare()){
+                    onPlay(ivPlayer)
                 }
-            }else{
-                ToastUtil.showToast(instance,"android系统不得低于4.4")
+            } else {
+                ToastUtil.showToast(instance, "android系统不得低于4.4")
             }
         }
 

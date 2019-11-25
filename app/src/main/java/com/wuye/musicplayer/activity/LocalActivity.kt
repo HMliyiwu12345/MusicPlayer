@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.activity_local.*
 import android.content.ServiceConnection as ServiceConnection1
 
 class LocalActivity : BaseActivity(), View.OnClickListener {
-    var TAG:String="LocalActivity"
+    var TAG: String = "LocalActivity"
     var conn: ServiceConnection1? = null
     var mIBinder: MusicService.PlayBinder? = null
 
@@ -57,31 +57,42 @@ class LocalActivity : BaseActivity(), View.OnClickListener {
 
     override fun onClick(p0: View?) {
 //        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        PermissionUtil.requestPower(this,READ_EXTERNAL_STORAGE)
-        val musicList = MusicUtils.getMusicInfo(this)
-        MCLog.d(TAG,musicList[0].toString())
+        PermissionUtil.requestPower(this, READ_EXTERNAL_STORAGE)
         when (p0?.id) {
-            R.id.iv_play -> startPlay(musicList[0].path)
+            R.id.iv_play ->
+                onPlay()
             R.id.iv_previous -> previous()
             R.id.iv_next -> next()
+        }
+    }
+
+    private fun onPlay(){
+        var intent = Intent(this, MusicService::class.java)
+        bindService(intent, conn, BIND_AUTO_CREATE)
+        if (mIBinder?.isPrepare()!!) {
+            preparePlay()
+        }
+        else {
+            val musicList = MusicUtils.getMusicInfo(this)
+            MCLog.d(TAG, musicList[0].toString())
+            startPlay(musicList[0].path)
         }
     }
 
     /**
      * 开始播放
      */
-    private fun startPlay(path:String) {
-        var intent= Intent(this,MusicService::class.java)
-        bindService(intent,conn,BIND_AUTO_CREATE)
-        mIBinder?.onStartPlay(path,iv_play)
+    private fun startPlay(path: String) {
+
+        mIBinder?.onStartPlay(path, iv_play)
     }
 
     /**
      * 播放音乐
      */
-    private fun play() {
+    private fun preparePlay() {
 
-            mIBinder?.onPlay(iv_play)
+        mIBinder?.onPlay(iv_play)
 
     }
 
