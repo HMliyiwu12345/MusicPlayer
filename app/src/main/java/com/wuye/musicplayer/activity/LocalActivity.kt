@@ -1,7 +1,9 @@
 package com.wuye.musicplayer.activity
 
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.app.Activity
 import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -10,15 +12,18 @@ import android.widget.ImageView
 
 import androidx.appcompat.app.AppCompatActivity
 import com.wuye.musicplayer.R
+import com.wuye.musicplayer.bean.Music
 import com.wuye.musicplayer.service.MusicService
+import com.wuye.musicplayer.utils.MCLog
+import com.wuye.musicplayer.utils.MusicUtils
+import com.wuye.musicplayer.utils.PermissionUtil
 import kotlinx.android.synthetic.main.activity_local.*
 import android.content.ServiceConnection as ServiceConnection1
 
 class LocalActivity : BaseActivity(), View.OnClickListener {
-
+    var TAG:String="LocalActivity"
     var conn: ServiceConnection1? = null
     var mIBinder: MusicService.PlayBinder? = null
-    var playSwitch: Boolean=false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,33 +57,39 @@ class LocalActivity : BaseActivity(), View.OnClickListener {
 
     override fun onClick(p0: View?) {
 //        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        when(p0?.id){
-            R.id.iv_play->play()
-            R.id.iv_previous->previous()
-            R.id.iv_next->next()
+        PermissionUtil.requestPower(this,READ_EXTERNAL_STORAGE)
+        val musicList = MusicUtils.getMusicInfo(this)
+        MCLog.d(TAG,musicList[0].toString())
+        when (p0?.id) {
+            R.id.iv_play -> startPlay(musicList[0].path)
+            R.id.iv_previous -> previous()
+            R.id.iv_next -> next()
         }
+    }
+
+    /**
+     * 开始播放
+     */
+    private fun startPlay(path:String) {
+        var intent= Intent(this,MusicService::class.java)
+        bindService(intent,conn,BIND_AUTO_CREATE)
+        mIBinder?.onStartPlay(path,iv_play)
     }
 
     /**
      * 播放音乐
      */
     private fun play() {
-        if(playSwitch){
-            //声音暂停播放的逻辑
-            iv_play.setBackgroundResource(R.drawable.ic_play)
-            mIBinder?.onStart()
-        }else{
-            //声音开始播放的逻辑
-            iv_play.setBackgroundResource(R.drawable.ic_pause)
 
-        }
-    playSwitch=!playSwitch;
+            mIBinder?.onPlay(iv_play)
+
     }
 
     /**
      * 上一首
      */
     private fun previous() {
+
     }
 
     /**
