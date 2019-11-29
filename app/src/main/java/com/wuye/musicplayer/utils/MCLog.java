@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class MCLog {
 
-	public static final boolean isDebug = false;
+	public static final boolean isDebug = true;
 	 
 	public static void i(String tag, String msg)  
     {  
