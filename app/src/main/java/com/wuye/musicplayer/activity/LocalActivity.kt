@@ -22,6 +22,7 @@ import com.wuye.musicplayer.service.MusicService
 import com.wuye.musicplayer.utils.MCLog
 import com.wuye.musicplayer.utils.MusicUtils
 import com.wuye.musicplayer.utils.PermissionUtil
+import com.wuye.musicplayer.utils.ToastUtil
 import kotlinx.android.synthetic.main.activity_local.*
 import android.content.ServiceConnection as ServiceConnection1
 
@@ -29,6 +30,8 @@ class LocalActivity : BaseActivity(), View.OnClickListener {
     var TAG: String = "LocalActivity"
     val instance by lazy { this }
     var sb_process: SeekBar? = null
+    var mIBinder: MusicService.PlayBinder? = null
+
 
     var mHandler: Handler = @SuppressLint("HandlerLeak")
     object : Handler() {
@@ -44,21 +47,17 @@ class LocalActivity : BaseActivity(), View.OnClickListener {
     var conn: ServiceConnection1 = object : ServiceConnection1 {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
 //                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            val musicList = MusicUtils.getMusicInfo(instance)
-            MCLog.d(TAG, musicList[0].path)
-            resetPlay(musicList[0].path, p1)
 
-//            sb_process?.max= mIBinder?.onGetMax()!!
-//            sb_process?.progress= mIBinder?.onGetProcess()!!
+            startConnect(p1)
 
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
 //                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            mIBinder?.onComplete()
         }
 
     }
-    var mIBinder: MusicService.PlayBinder? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,8 +78,8 @@ class LocalActivity : BaseActivity(), View.OnClickListener {
         var iv_next: ImageView = findViewById(R.id.iv_next)
         iv_next.setOnClickListener(instance)
         sb_process = findViewById(R.id.sb_process)
-        sb_process?.progress=0
-        sb_process?.setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
+        sb_process?.progress = 0
+        sb_process?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
 //                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
                 mIBinder?.onSeekto(p1)
@@ -115,13 +114,23 @@ class LocalActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    private fun startConnect(p1: IBinder?) {
+        val musicList = MusicUtils.getMusicInfo(instance)
+
+        if(musicList.size==0){
+            unbindService(conn)
+            ToastUtil.showToast(instance,"当前没有音乐播放")
+            return
+        }
+        resetPlay(musicList[0].path, p1)
+    }
 
     /**
      * 开始播放
      */
-    private fun resetPlay(path: String, p1: IBinder?) {
+    private fun resetPlay(path: String?, p1: IBinder?) {
         mIBinder = p1 as MusicService.PlayBinder
-        mIBinder!!.mHandler=mHandler
+        mIBinder!!.mHandler = mHandler
         mIBinder?.onStartPlay(path, iv_play)
     }
 
@@ -155,11 +164,9 @@ class LocalActivity : BaseActivity(), View.OnClickListener {
         var currentPosition = bundle.getInt("currentPosition")
 
         sb_process?.max = 100
-        sb_process?.progress = ((currentPosition.toFloat()/max)*100).toInt()
+        sb_process?.progress = ((currentPosition.toFloat() / max) * 100).toInt()
 
     }
-
-
 
 
 }

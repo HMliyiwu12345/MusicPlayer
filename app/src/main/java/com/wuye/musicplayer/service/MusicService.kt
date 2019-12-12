@@ -53,16 +53,19 @@ class MusicService : Service() {
 
 
         /**
-         * 设置歌曲源
+         * 设置歌曲源，并开始播放
          */
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        fun setDataSource(path: String, ivPlayer: ImageView) {
+        fun setDataSource(path: String?, ivPlayer: ImageView) {
+            if(TextUtils.isEmpty(path)){
+                return
+            }
             mMediaPlayer?.reset()
             mMediaPlayer?.setDataSource(path)
             mMediaPlayer?.prepareAsync()
-            //判断音乐是否加载完成
+            //注册一个回调函数，以便在媒体源就绪时调用为回放
             mMediaPlayer?.setOnPreparedListener {
-                //                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
                 onPlay(ivPlayer)
                 updateSeekBar()
                 temp=true
@@ -71,6 +74,7 @@ class MusicService : Service() {
             mMediaPlayer?.setOnCompletionListener {
                 temp=false
                 ivPlayer.setBackgroundResource(R.drawable.ic_play)
+                onComplete()
 
             }
             //音乐出错的回调
@@ -98,7 +102,7 @@ class MusicService : Service() {
         /**
          * 在还没有加载音乐资源下进行音乐播放
          */
-        fun onStartPlay(path: String, ivPlayer: ImageView) {
+        fun onStartPlay(path: String?, ivPlayer: ImageView) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 setDataSource(path,ivPlayer)
                 if(isPrepare()){
@@ -132,18 +136,18 @@ class MusicService : Service() {
 //        }
 
         /**
-         * 销毁按钮
+         * 完成
          */
-        fun onDestroy() {
+         fun onComplete() {
             mMediaPlayer?.release()
-            mThread?.destroy()
+            mThread?.interrupt()
         }
 
         /**
          * 设置歌曲的播放进度
          */
         fun onSeekto(process: Int) {
-            var mesc:Int= ((process.toFloat()/100)*mMediaPlayer?.duration!!).toInt()
+            val mesc:Int= ((process.toFloat()/100)*mMediaPlayer?.duration!!).toInt()
             MCLog.d("lyw",((mesc).toString()))
 
             mMediaPlayer?.seekTo(mesc)
@@ -153,15 +157,15 @@ class MusicService : Service() {
          */
         fun updateSeekBar(){
         //获取总时长
-            var duration:Int=mMediaPlayer?.duration!!
+            val duration:Int=mMediaPlayer?.duration!!
         //开启线程
             mThread=object:Thread(){
                 override fun run() {
                     while(true){
                         sleep(1000)
-                        var currentPosition:Int=mMediaPlayer?.currentPosition!!
-                        var message:Message=Message.obtain()
-                        var bundle=Bundle()
+                        val currentPosition:Int=mMediaPlayer?.currentPosition!!
+                        val message:Message=Message.obtain()
+                        val bundle=Bundle()
                         bundle.putInt("duration",duration)
                         bundle.putInt("currentPosition",currentPosition)
                         message.what=UPDATE_SEEKBAR
@@ -173,5 +177,9 @@ class MusicService : Service() {
             (mThread as Thread).start()
         }
 
+
+
     }
+
+
 }
