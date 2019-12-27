@@ -13,4 +13,7 @@ abstract class BaseActivity : Activity() {
     abstract fun initView()
 
 
+    abstract fun initData()
+
+
 }

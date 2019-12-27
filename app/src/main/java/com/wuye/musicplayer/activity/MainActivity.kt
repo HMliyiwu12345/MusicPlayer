@@ -26,6 +26,9 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
 
     }
+    override fun initData() {
+
+    }
 
     /**
      * \实例化变量
